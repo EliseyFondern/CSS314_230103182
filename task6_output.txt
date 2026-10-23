@@ -1,0 +1,23 @@
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+Python: 3.14.7
+Logical cores (os.cpu_count()): 32
+Workers: 4 parallel processes | increments each: 2,000,000
+
+=== Version 1: NO synchronization (race condition) ===
+  Expected final value : 8,000,000
+  Actual final value   : 2,176,722
+  Lost updates         : 5,823,278 (72.79%)
+  Wall-clock time      : 706.14 ms
+
+=== Version 2: Mutex / Lock (correct) ===
+  Expected final value : 8,000,000
+  Actual final value   : 8,000,000
+  Lost updates         : 0 (0.00%)
+  Wall-clock time      : 61039.49 ms
+
+=== Synchronization penalty ===
+  Unsynchronized :     706.14 ms  (WRONG result)
+  With lock      :   61039.49 ms  (correct result)
+  Time penalty   : +60333.35 ms (86.44x slower)
+  Cost per locked increment: 7541.7 ns extra
