@@ -1,0 +1,15 @@
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+Python: 3.14.7, NumPy: 2.5.2
+Logical cores (os.cpu_count()): 32
+Mode: CPU inter-process transfer (parent -> child process)
+Arrays: float64 | best of 5 round trips per size
+
+           N |     Size | Path A: Pipe+pickle (ms) | Path B: shared mem (ms) |    A / B
+---------------------------------------------------------------------------------------
+     100,000 |   0.8 MB |                    1.869 |                   0.108 |    17.3x
+   1,000,000 |   7.6 MB |                   17.272 |                   0.135 |   127.9x
+  10,000,000 |  76.3 MB |                  178.247 |                   0.113 |  1576.0x
+
+Path A cost grows with N: the array is serialized, copied through the OS pipe, and rebuilt.
+Path B cost is ~constant: only a short name is sent; both processes map the same RAM.
