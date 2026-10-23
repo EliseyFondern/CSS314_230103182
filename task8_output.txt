@@ -1,0 +1,19 @@
+[GPU unavailable: ModuleNotFoundError: No module named 'cupy'] -> falling back to CPU mode
+
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+Python: 3.14.7, NumPy: 2.5.2
+Logical cores (os.cpu_count()): 32
+Mode: CPU parallel (no CUDA/CuPy available or --cpu given)
+Matrix: 1024x1024 float64 | threads: 32 | rows split evenly across threads
+
+Variant                    | Runtime (ms) | vs non-tiled | Tile working set | Correct
+-------------------------------------------------------------------------------------
+Non-tiled (row x full B)   |       1423.9 |        1.00x |      8 MB (> L2) | True
+Tiled 64x64                |         58.0 |       24.57x |       96 KB (L2) | True
+Tiled 16x16                |        500.0 |        2.85x |        6 KB (L1) | True
+
+Fastest: Tiled 64x64 (58.0 ms)
+Non-tiled re-reads all of B (8 MB, larger than L2) for every row -> constant cache misses.
+64x64 tiles (96 KB) stay in L2 and are reused many times -> far fewer misses to RAM.
+16x16 tiles (6 KB) fit in L1, but are so small that per-tile overhead dominates.
