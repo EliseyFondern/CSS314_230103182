@@ -1,0 +1,31 @@
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+CPU: Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+Python: 3.14.7, NumPy: 2.5.2
+Logical cores / pool workers: 32
+Operation: y[i] = 2.5 * x[i] + 1.5 (float64) | best of many runs
+
+           N | Serial (ms) | Parallel (ms) |  Speedup | Result
+--------------------------------------------------------------
+         100 |      0.0007 |        0.3244 |    0.00x | parallel SLOWER
+       1,000 |      0.0024 |        0.6623 |    0.00x | parallel SLOWER
+      10,000 |      0.0057 |        0.5347 |    0.01x | parallel SLOWER
+     100,000 |      0.0383 |        0.9202 |    0.04x | parallel SLOWER
+   1,000,000 |      0.7167 |        0.7715 |    0.93x | parallel SLOWER
+  10,000,000 |     14.3172 |       10.3929 |    1.38x | parallel FASTER
+
+CROSSOVER (coarse): parallel becomes faster between N = 1,000,000 and N = 10,000,000
+
+Refining the crossover inside that range:
+           N | Serial (ms) | Parallel (ms) |  Speedup | Result
+--------------------------------------------------------------
+   1,291,549 |      0.9282 |        0.8690 |    1.07x | parallel FASTER
+   1,668,100 |      1.2814 |        1.6423 |    0.78x | parallel SLOWER
+   2,154,434 |      1.9918 |        1.4979 |    1.33x | parallel FASTER
+   2,782,559 |      2.7275 |        1.5893 |    1.72x | parallel FASTER
+   3,593,813 |      3.8621 |        1.8906 |    2.04x | parallel FASTER
+   4,641,588 |      6.0987 |        3.6091 |    1.69x | parallel FASTER
+   5,994,842 |      7.7220 |        3.7396 |    2.06x | parallel FASTER
+   7,742,636 |     11.6004 |        5.7651 |    2.01x | parallel FASTER
+
+CROSSOVER (refined): parallel shifts from SLOWER to FASTER between N = 1,291,549 and N = 1,668,100 on this machine
