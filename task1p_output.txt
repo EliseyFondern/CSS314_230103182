@@ -1,0 +1,17 @@
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+Python: 3.14.7, NumPy: 2.5.2
+Logical cores (os.cpu_count()): 32
+Physical cores (workers used): 24
+Matrix: 8,000 x 8,000 float64 (488 MB), row-major (C order) | best of 3 runs
+
+Mode                                         | Runtime (ms) |                Sum
+----------------------------------------------------------------------------------
+A: Row-Major (rows sliced, contiguous)       |        99.38 |      32000754.1653
+B: Column-Major (columns sliced, strided)    |       135.73 |      32000754.1653
+
+Mode A runtime: 99.38 ms
+Mode B runtime: 135.73 ms
+Cache penalty factor (B / A): 1.37x
+Sums match: True
+Stride in Mode B: 64,000 bytes between consecutive elements (vs 8 bytes in Mode A; cache line = 64 bytes)
