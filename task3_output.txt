@@ -1,0 +1,20 @@
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+Python: 3.14.7
+Logical cores (os.cpu_count()): 32
+Physical cores (workers used, N): 24
+Increments per worker: 50,000,000
+
+Running benchmarks...
+  1. Unpadded shared (false sharing)       65674.97 ms   (counts correct: True)
+  2. Padded shared (128-byte stride)       23849.90 ms   (counts correct: True)
+  3. Local variable, write once             9584.12 ms   (counts correct: True)
+
+Version                              | Wall Time (ms) | vs Unpadded
+-------------------------------------------------------------------
+Unpadded shared                      |       65674.97 |       1.00x
+Padded shared                        |       23849.90 |       2.75x
+Local variable                       |        9584.12 |       6.85x
+
+Execution ratio Unpadded / Padded: 2.75x
+Execution ratio Unpadded / Local : 6.85x
