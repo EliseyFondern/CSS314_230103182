@@ -1,0 +1,20 @@
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+Python: 3.14.7
+Logical cores (os.cpu_count()): 32
+Batch: 10,000 tasks x 500 SHA-256 rounds over a 1 KB string | best of 3 runs
+Pool sizes: [1, 16, 32, 64, 128, 256, 512]
+
+Pool Size | Execution Time (ms) | Speedup vs 1 thread | Status
+----------------------------------------------------------------------------------
+        1 |              1125.9 |               1.00x | scaling up
+       16 |               286.3 |               3.93x | PEAK (fastest)
+       32 |               364.5 |               3.09x | <<< DEGRADATION STARTS: context switching overhead
+       64 |               380.3 |               2.96x | oversubscribed (degraded)
+      128 |               426.1 |               2.64x | oversubscribed (degraded)
+      256 |               480.3 |               2.34x | oversubscribed (degraded)
+      512 |               532.7 |               2.11x | oversubscribed (degraded)
+
+Fastest pool size: 16 threads (286.3 ms, 3.93x vs 1 thread)
+Oversubscription threshold: execution time starts worsening at pool size 32 (364.5 ms, +27.3% vs peak); last size before it: 16
+All pool sizes produced identical hash results: True
