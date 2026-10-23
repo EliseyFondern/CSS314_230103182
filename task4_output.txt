@@ -1,0 +1,39 @@
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+Python: 3.14.7
+Logical cores (os.cpu_count()): 32
+Items: 1000 | workers: 4 | cost(i) = 0.0001 * (i % 20) s
+Total serial work: 950.0 ms | ideal parallel time: 237.5 ms
+
+--- Strategy A: Static blocks (250 items each) ---
+  Worker 0: items= 250 | assigned work=  232.5 ms | finished at  236.17 ms
+  Worker 1: items= 250 | assigned work=  242.5 ms | finished at  247.88 ms
+  Worker 2: items= 250 | assigned work=  232.5 ms | finished at  237.20 ms
+  Worker 3: items= 250 | assigned work=  242.5 ms | finished at  247.75 ms
+  Total execution time      : 247.98 ms
+  First finish / Last finish: 236.17 ms / 247.88 ms
+  Completion delta (max-min): 11.71 ms
+
+--- Strategy B: Dynamic queue, chunk = 1 ---
+  Worker 0: items= 270 | assigned work=  237.4 ms | finished at  241.21 ms
+  Worker 1: items= 243 | assigned work=  237.1 ms | finished at  240.64 ms
+  Worker 2: items= 234 | assigned work=  237.7 ms | finished at  241.56 ms
+  Worker 3: items= 253 | assigned work=  237.8 ms | finished at  241.94 ms
+  Total execution time      : 241.99 ms
+  First finish / Last finish: 240.64 ms / 241.94 ms
+  Completion delta (max-min): 1.30 ms
+
+--- Strategy B: Dynamic queue, chunk = 5 ---
+  Worker 0: items= 285 | assigned work=  237.0 ms | finished at  242.35 ms
+  Worker 1: items= 200 | assigned work=  235.0 ms | finished at  237.69 ms
+  Worker 2: items= 270 | assigned work=  241.5 ms | finished at  246.12 ms
+  Worker 3: items= 245 | assigned work=  236.5 ms | finished at  241.14 ms
+  Total execution time      : 246.22 ms
+  First finish / Last finish: 237.69 ms / 246.12 ms
+  Completion delta (max-min): 8.43 ms
+
+Strategy                       | Total (ms) | Completion delta (ms)
+-------------------------------------------------------------------
+Static blocks                  |     247.98 |                 11.71
+Dynamic, chunk=1               |     241.99 |                  1.30
+Dynamic, chunk=5               |     246.22 |                  8.43
