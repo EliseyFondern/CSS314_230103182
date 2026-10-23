@@ -1,0 +1,14 @@
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+Python: 3.14.7, NumPy: 2.5.2
+Logical cores (os.cpu_count()): 32
+Samples: 40,000,000 | threads: 4 | chunk: 250,000 points per request
+Independent seeds: [2301031820, 2301031821, 2301031822, 2301031823]
+
+Mode                       |  Computed pi |   Abs error | Wall time (ms)
+------------------------------------------------------------------------
+Shared PRNG + mutex        |   3.14156630 |    2.64e-05 |         642.44
+Independent PRNG/thread    |   3.14177180 |    1.79e-04 |         730.41
+
+math.pi = 3.14159265
+Speedup from eliminating generator state locking: 0.88x
