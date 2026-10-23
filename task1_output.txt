@@ -1,0 +1,12 @@
+Student ID: 230103182
+OS: Windows 11 (10.0.26200)
+Platform: Windows-11-10.0.26200-SP0
+CPU model: 13th Gen Intel(R) Core(TM) i9-13900HX
+Logical cores (os.cpu_count()): 32
+Python: 3.14.7, NumPy: 2.5.2
+--------------------------------------------------
+Array size: 20,000,000 elements, dtype=float64
+Generation time: 84.61 ms
+Sum: 9999451.529968
+Standard deviation: 0.288701
+Execution time (sum + std, serial): 136.46 ms
