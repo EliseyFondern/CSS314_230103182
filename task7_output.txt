@@ -1,0 +1,27 @@
+Student ID: 230103182
+Platform: Windows-11-10.0.26200-SP0
+CPU: Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+Python: 3.14.7, NumPy: 2.5.2
+Logical cores (os.cpu_count()): 32
+Array: 30,000,000 float64 (240 MB per array) | best of 3 runs
+
+--- Kernel A: Copy  B[i] = A[i]  (memory-bound) ---
+Cores |  Time (ms) |  Speedup | Efficiency |   Bandwidth
+--------------------------------------------------------
+    1 |      19.08 |    1.00x |     100.0% |     25.2 GB/s
+    2 |      16.15 |    1.18x |      59.1% |     29.7 GB/s
+   32 |      17.16 |    1.11x |       3.5% |     28.0 GB/s
+
+--- Kernel B: sin*cos+tan        (compute-bound) ---
+Cores |  Time (ms) |  Speedup | Efficiency |   Bandwidth
+--------------------------------------------------------
+    1 |     691.03 |    1.00x |     100.0% |           -
+    2 |     406.46 |    1.70x |      85.0% |           -
+   32 |     169.85 |    4.07x |      12.7% |           -
+
+=== Conclusion ===
+At 32 cores: Kernel A speedup 1.11x (efficiency 3.5%), Kernel B speedup 4.07x (efficiency 12.7%)
+STALLED due to memory channel saturation: Kernel A: Copy B[i] = A[i] (memory-bound)
+  -> almost no arithmetic per byte; extra cores just wait on the RAM bus.
+SCALED better: Kernel B: sin*cos+tan (compute-bound)
+  -> high arithmetic intensity; each core keeps busy computing, so more cores help.
