@@ -1,0 +1,99 @@
+import os
+import sys
+import json
+import math
+import time
+import hashlib
+import platform
+import subprocess
+import numpy as np
+from mpi4py import MPI
+from numba import cuda, njit, float64, uint64
+
+TILE_DIM = 16
+SHARED_DIM = TILE_DIM + 2  # 18x18 shared tile
+GLOBAL_NX = 512
+GLOBAL_NY = 512
+STENCIL_STEPS = 300
+SHM_ITERS = 40_000_000
+LAMBDA_DAMP = 0.15
+
+
+def get_gpu_uuid() -> str:
+    out = subprocess.check_output(
+        ["nvidia-smi", "--query-gpu=uuid", "--format=csv,noheader"],
+        encoding="utf-8",
+    )
+    return out.strip().splitlines()[0].strip()
+
+
+def detect_cpu_line_size() -> int:
+    path = "/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size"
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return int(f.read().strip())
+    return 64
+
+
+# ==============================================================================
+# TASK 1: Hybrid MPI Cartesian Grid + Node-Local MPI-3 Shared-Memory Window
+# ==============================================================================
+def init_hybrid_context(github_user: str) -> dict:
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+    if size != 4:
+        raise RuntimeError(f"Requires exactly 4 MPI ranks (2x2 grid), got {size}.")
+
+    cuda.select_device(0)
+    gpu_uuid = comm.bcast(get_gpu_uuid() if rank == 0 else None, root=0)
+    cpu_sig = f"{platform.machine()}::{os.cpu_count()}"
+    line_bytes = detect_cpu_line_size()
+
+    digest = hashlib.sha256(
+        f"{github_user.strip()}::{gpu_uuid}::{cpu_sig}".encode("utf-8")
+    ).hexdigest()
+    instance_seed = int(digest[:16], 16)
+
+    cart_comm = comm.Create_cart(dims=[2, 2], periods=[False, False], reorder=False)
+    cart_rank = cart_comm.Get_rank()
+    coords = cart_comm.Get_coords(cart_rank)
+    up, down = cart_comm.Shift(0, 1)
+    left, right = cart_comm.Shift(1, 1)
+
+    node_comm = comm.Split_type(MPI.COMM_TYPE_SHARED)
+    node_rank = node_comm.Get_rank()
+    n_slots = 64
+    slot_bytes = np.dtype(np.uint64).itemsize
+    nbytes = n_slots * slot_bytes + 64 if node_rank == 0 else 0
+    win = MPI.Win.Allocate_shared(nbytes, 1, comm=node_comm)
+    buf, _ = win.Shared_query(0)
+    raw = np.frombuffer(buf, dtype=np.uint8)
+    offset = (-raw.ctypes.data) % 64
+    shm_view = raw[offset: offset + n_slots * slot_bytes].view(np.uint64)
+    assert shm_view.ctypes.data % 64 == 0
+
+    if node_rank == 0:
+        shm_view[:] = 0
+    node_comm.Barrier()
+
+    print(f"[rank {cart_rank}] coords={coords} up={up} down={down} "
+          f"left={left} right={right} shm_addr%64={shm_view.ctypes.data % 64}",
+          flush=True)
+
+    return {
+        "comm": comm, "cart_comm": cart_comm, "rank": cart_rank,
+        "coords": tuple(coords),
+        "neighbors": {"up": up, "down": down, "left": left, "right": right},
+        "node_comm": node_comm, "win": win, "shm_view": shm_view,
+        "gpu_uuid": gpu_uuid, "cpu_sig": cpu_sig, "cpu_line_bytes": line_bytes,
+        "instance_seed": instance_seed,
+    }
+
+
+# --- ВРЕМЕННАЯ проверка шага 1 (потом заменим на настоящий main) ---
+if __name__ == "__main__":
+    ctx = init_hybrid_context(sys.argv[1])
+    if ctx["rank"] == 0:
+        print("INSTANCE_SEED =", hex(ctx["instance_seed"]))
+    ctx["win"].Free()
